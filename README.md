@@ -6,3 +6,4 @@ prisma migrate
 ```bash
 npx prisma migrate dev --name init
 ```
+
