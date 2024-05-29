@@ -1,0 +1,80 @@
+datasource db {
+  provider = "postgresql" // 利用するデータベースに応じて変更
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Genre {
+  JAPANESE
+  CHINESE
+  WESTERN
+  ITALIAN
+  FRENCH
+  KOREAN
+  INDIAN
+  OTHER
+}
+
+model Review {
+  id             Int      @id @default(autoincrement())
+  restaurantName String
+  mealName       String
+  price          Float
+  rating         Int
+  comment        String?
+  genre          Genre
+  imageUrl       String
+  location       String
+  createdAt      DateTime @default(now())
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  reviews       Review[]
+}
+
+model Account {
+  id                 Int       @id @default(autoincrement())
+  userId             Int
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+  user               User      @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           Int       @id @default(autoincrement())
+  sessionToken String    @unique
+  userId       Int
+  expires      DateTime
+  user         User      @relation(fields: [userId], references: [id])
+}
+
+model VerificationToken {
+  identifier String
+  token      String    @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
